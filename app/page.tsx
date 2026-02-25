@@ -1,6 +1,6 @@
 'use client'
 import { useState, useCallback, useMemo } from 'react'
-import { Building2, ChevronDown } from 'lucide-react'
+import { Building2 } from 'lucide-react'
 import FileUpload from '@/components/FileUpload'
 import OverviewCards from '@/components/OverviewCards'
 import TimeSeriesChart from '@/components/TimeSeriesChart'
@@ -10,7 +10,7 @@ import DirectionChart from '@/components/DirectionChart'
 import CameraComparisonChart from '@/components/CameraComparisonChart'
 import InsightProposal from '@/components/InsightProposal'
 import { CameraData } from '@/lib/types'
-import { parseXlsxFile, extractCameraNumber } from '@/lib/dataParser'
+import { parseXlsxFile } from '@/lib/dataParser'
 import { computeAnalytics, computeCameraComparison } from '@/lib/analytics'
 
 type TabKey = 'overview' | 'demographics' | 'appearance' | 'comparison' | 'proposal'
@@ -40,18 +40,16 @@ export default function Home() {
     }
     setCameras(newCameras)
     if (selectedCamera === 'all' && newCameras.size === 1) {
-      setSelectedCamera(newCameras.keys().next().value)
+      const firstKey = newCameras.keys().next().value
+      if (firstKey !== undefined) setSelectedCamera(firstKey)
     }
   }, [cameras, selectedCamera])
 
   const handleRemove = useCallback((filename: string) => {
     const newCameras = new Map(cameras)
-    for (const [id, cam] of newCameras.entries()) {
-      if (cam.filename === filename) {
-        newCameras.delete(id)
-        break
-      }
-    }
+    Array.from(newCameras.entries()).forEach(([id, cam]) => {
+      if (cam.filename === filename) newCameras.delete(id)
+    })
     setCameras(newCameras)
   }, [cameras])
 
